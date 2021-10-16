@@ -12,20 +12,20 @@ export default function Header() {
 
   return (
     <header className={classes.header}>
-      <ul className={classes.list}>
-        <motion.li
-          onClick={() => history.push("/")}
-          initial={{ y: -200 }}
-          animate={{ y: 0 }}
-          transition={{ ease: "easeOut", delay: 1 }}
-        >
+      <motion.ul
+        className={classes.list}
+        initial={{ y: -200 }}
+        animate={{ y: 0 }}
+        transition={{ ease: "easeOut", delay: 0.4 }}
+      >
+        <motion.li className={classes.logo} onClick={() => history.push("/")}>
           <motion.div
             variants={{
               hover: {
                 scale: 1.1,
-              },
-              transition: {
-                yoyo: Infinity,
+                transition: {
+                  yoyo: Infinity,
+                },
               },
             }}
             whileHover="hover"
@@ -39,28 +39,26 @@ export default function Header() {
           className={classes.link}
           variants={{
             hover: {
-              opacity: 1,
+              opacity: 0.7,
             },
           }}
           whileHover="hover"
         >
-          <Button
-            size="lg"
-            variant="gradient"
-            gradient={{ from: "grape", to: "pink", deg: 35 }}
-          >
+          <Button size="lg" color="dark">
             Thoughts
           </Button>
         </motion.li>
-      </ul>
+      </motion.ul>
     </header>
   );
 }
 
 const useStyles = createStyles((theme) => ({
-  header: {},
-  link: {
-    opacity: 0.5,
+  header: {
+    maxHeight: "10vh",
+  },
+  logo: {
+    cursor: "pointer",
   },
   list: {
     padding: "1em",
