@@ -1,37 +1,88 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 
-import { Button, createStyles } from "@mantine/core";
+import {
+  Button,
+  MediaQuery,
+  createStyles,
+  Container,
+  Timeline,
+  Grid,
+  Col,
+  LoadingOverlay,
+  Alert,
+  Space,
+  Center,
+} from "@mantine/core";
 import { motion } from "framer-motion";
 
 export default function Home() {
+  const fileUpload = useRef(null);
+  const uploadRef = useRef(null);
+  const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const { classes } = useStyles();
 
+  const handleUploadImage = (e) => {
+    setFile(e.target.files[0]);
+
+    setUploading(true);
+    setTimeout(() => {
+      setUploading(false);
+      setSuccess(true);
+    }, 1000);
+  };
+
   return (
-    <div className={classes.page}>
-      <motion.div className={classes.hero}>
+    <div>
+      <motion.div
+        className={classes.hero}
+        animate={{ backgroundColor: ["#acc6f0", "#fac4b0", "#acc6f0"] }}
+        transition={{
+          easings: ["easeIn"],
+          repeat: Infinity,
+          duration: 10,
+        }}
+      >
         <motion.div
-          className={classes.heroTextPrimary}
           initial={{ x: -1280 }}
           animate={{ x: 0 }}
           transition={{ ease: "anticipate", delay: 0.8 }}
         >
-          <h1>Share your thoughts </h1>
+          <MediaQuery largerThan="lg">
+            <h1 className={classes.heroTextPrimary}>Share your thoughts </h1>
+          </MediaQuery>
+          <MediaQuery smallerThan="lg">
+            <h1 className={classes.heroTextPrimaryPhone}>
+              Share your thoughts{" "}
+            </h1>
+          </MediaQuery>
         </motion.div>
         <motion.div
-          className={classes.heroTextSecondary}
           initial={{ x: -1280 }}
           animate={{ x: 0 }}
           transition={{ ease: "anticipate", delay: 0.9 }}
         >
-          <h1>with the entire world</h1>
+          <MediaQuery largerThan="lg">
+            <h1 className={classes.heroTextSecondary}>with the entire world</h1>
+          </MediaQuery>
+          <MediaQuery smallerThan="lg">
+            <h1 className={classes.heroTextSecondaryPhone}>
+              with the entire world
+            </h1>
+          </MediaQuery>
         </motion.div>
         <motion.div
-          className={classes.heroTextSecondary}
           initial={{ x: -1280 }}
           animate={{ x: 0 }}
           transition={{ ease: "anticipate", delay: 1 }}
         >
-          <h1>through an image</h1>
+          <MediaQuery largerThan="lg">
+            <h1 className={classes.heroTextSecondary}>through an image</h1>
+          </MediaQuery>
+          <MediaQuery smallerThan="lg">
+            <h1 className={classes.heroTextSecondaryPhone}>through an image</h1>
+          </MediaQuery>
         </motion.div>
 
         <motion.div
@@ -39,30 +90,105 @@ export default function Home() {
           animate={{ x: 0 }}
           transition={{ ease: "anticipate", delay: 1 }}
         >
-          <Button color="dark" size="xl">
-            Start now!
+          <Button
+            color="dark"
+            size="xl"
+            className={classes.button}
+            onClick={() =>
+              uploadRef.current.scrollIntoView({ behavior: "smooth" })
+            }
+          >
+            Start now
           </Button>
         </motion.div>
       </motion.div>
+      <Container className={classes.upload}>
+        <Grid>
+          <LoadingOverlay
+            visible={uploading}
+            loaderProps={{ size: "xl", color: "orange", variant: "bars" }}
+          />
+          <Col span={12} lg={2} md={3} sm={12}>
+            <Center>
+              <Timeline active={3} bulletSize={24} lineWidth={3} color="orange">
+                <Timeline.Item title="Click the button" />
+                <Timeline.Item title="Select an image" />
+                <Timeline.Item title="Upload the image" />
+                <Timeline.Item title="Done" />
+              </Timeline>
+            </Center>
+          </Col>
+          <Col span={12} lg={10} md={9} sm={12}>
+            <MediaQuery largerThan="lg">
+              <h1 className={classes.heroTextPrimary}>Choose an image</h1>
+            </MediaQuery>
+            <MediaQuery smallerThan="lg">
+              <h1 className={classes.heroTextPrimaryPhone}>Choose an image</h1>
+            </MediaQuery>
+            <Button
+              ref={uploadRef}
+              size="xl"
+              variant="gradient"
+              gradient={{ from: "orange", to: "red" }}
+              onClick={() => {
+                fileUpload.current.click();
+              }}
+            >
+              Upload
+            </Button>
+            <Space />
+            <input
+              ref={fileUpload}
+              onChange={(e) => handleUploadImage(e)}
+              className={classes.hide}
+              type="file"
+              accept="image/*"
+              multiple={false}
+            ></input>
+            {success ? (
+              <Alert color="green" title="File uploaded!">
+                You uploaded: {file.name}
+              </Alert>
+            ) : null}
+          </Col>
+        </Grid>
+      </Container>
     </div>
   );
 }
 
 const useStyles = createStyles((theme) => ({
-  page: {
-    minHeight: "90vh",
-  },
   hero: {
-    minHeight: "60vh",
+    minHeight: "75vh",
     padding: "4rem",
-    borderRadius: " 5em",
-    margin: "1rem",
   },
   heroTextPrimary: {
-    fontSize: "3rem",
+    fontSize: "5rem",
   },
   heroTextSecondary: {
+    fontSize: "4rem",
+    color: "gray",
+  },
+  heroTextPrimaryPhone: {
+    fontSize: "3rem",
+  },
+  heroTextSecondaryPhone: {
     fontSize: "2rem",
     color: "gray",
+  },
+  button: {
+    marginTop: "1rem",
+  },
+  upload: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "80vh",
+    textAlign: "center",
+  },
+  hide: {
+    pointerEvents: "none",
+    display: "none",
   },
 }));
