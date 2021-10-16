@@ -2,7 +2,7 @@ import React from "react";
 
 import { motion } from "framer-motion";
 
-import { Title, Button, createStyles } from "@mantine/core";
+import { Title, Button, MediaQuery, createStyles } from "@mantine/core";
 
 import { useHistory } from "react-router";
 
@@ -11,7 +11,7 @@ export default function Header() {
   const history = useHistory();
 
   return (
-    <header className={classes.header}>
+    <motion.header className={classes.header}>
       <motion.ul
         className={classes.list}
         initial={{ y: -200 }}
@@ -24,13 +24,23 @@ export default function Header() {
               hover: {
                 scale: 1.1,
                 transition: {
-                  yoyo: Infinity,
+                  repeat: Infinity,
+                  repeatType: "mirror",
+                  duration: 0.5,
                 },
               },
             }}
             whileHover="hover"
           >
-            <Title weight={"bold"}>Dispense The Thought</Title>
+            <MediaQuery largerThan="lg">
+              <Title weight={"bold"}>Dispense The Thought</Title>
+            </MediaQuery>
+
+            <MediaQuery smallerThan="lg">
+              <Title order={4} weight={"bold"}>
+                Dispense The Thought
+              </Title>
+            </MediaQuery>
           </motion.div>
         </motion.li>
 
@@ -44,19 +54,24 @@ export default function Header() {
           }}
           whileHover="hover"
         >
-          <Button size="lg" color="dark">
-            Thoughts
-          </Button>
+          <MediaQuery largerThan="lg">
+            <Button size="lg" color="dark">
+              Thoughts
+            </Button>
+          </MediaQuery>
+          <MediaQuery smallerThan="lg">
+            <Button size="sm" color="dark">
+              Thoughts
+            </Button>
+          </MediaQuery>
         </motion.li>
       </motion.ul>
-    </header>
+    </motion.header>
   );
 }
 
 const useStyles = createStyles((theme) => ({
-  header: {
-    maxHeight: "10vh",
-  },
+  header: {},
   logo: {
     cursor: "pointer",
   },
