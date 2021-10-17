@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const { existsSync, mkdir } = require("fs");
 
-const { uploadFile } = require("./awsS3");
+const { uploadFile, getAllFiles } = require("./awsS3");
 
 const app = express();
 
@@ -67,8 +67,14 @@ const allow = function (req, res, next) {
   next();
 };
 
-app.get("/thoughts", (req, res) => {
-  res.send("Hello World!");
+app.get("/thoughts", allow, async (req, res) => {
+  try {
+    const allFiles = await getAllFiles();
+
+    res.status(200).json(allFiles.reverse());
+  } catch (e) {
+    res.sendStatus(500);
+  }
 });
 
 app.post("/upload", [allow, upload.single("image")], async (req, res) => {
