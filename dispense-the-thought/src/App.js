@@ -10,7 +10,7 @@ import Header from "./components/Header";
 
 function App() {
   return (
-    <MantineProvider>
+    <MantineProvider theme={{ loader: "bars" }}>
       <Router>
         <Header />
         <Switch>
