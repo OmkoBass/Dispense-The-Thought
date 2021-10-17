@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react";
 
+import axios from "axios";
+
 import {
   Button,
   MediaQuery,
@@ -21,16 +23,31 @@ export default function Home() {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
   const { classes } = useStyles();
 
-  const handleUploadImage = (e) => {
+  const handleUploadImage = async (e) => {
+    setUploading(true);
+
     setFile(e.target.files[0]);
 
-    setUploading(true);
-    setTimeout(() => {
+    let formData = new FormData();
+    formData.append("image", e.target.files[0]);
+
+    try {
+      const uploadRequest = await axios.post(
+        "http://localhost:5000/upload",
+        formData
+      );
+
+      if (uploadRequest.status === 200) {
+        setSuccess(true);
+      }
+    } catch (e) {
+      setError(e.toString());
+    } finally {
       setUploading(false);
-      setSuccess(true);
-    }, 1000);
+    }
   };
 
   return (
@@ -137,17 +154,25 @@ export default function Home() {
               Upload
             </Button>
             <Space />
-            <input
-              ref={fileUpload}
-              onChange={(e) => handleUploadImage(e)}
-              className={classes.hide}
-              type="file"
-              accept="image/*"
-              multiple={false}
-            ></input>
+            <form encType="multipart/form-data" method="POST">
+              <input
+                type="file"
+                multiple={false}
+                ref={fileUpload}
+                onChange={(e) => handleUploadImage(e)}
+                accept="image/*"
+                className={classes.hide}
+              />
+            </form>
+
             {success ? (
               <Alert color="green" title="File uploaded!">
                 You uploaded: {file.name}
+              </Alert>
+            ) : null}
+            {error ? (
+              <Alert color="red" title="Something went wrong!">
+                {error}
               </Alert>
             ) : null}
           </Col>
