@@ -1,7 +1,5 @@
 import React, { useState, useRef } from "react";
 
-import axios from "axios";
-
 import {
   Button,
   MediaQuery,
@@ -17,6 +15,8 @@ import {
 } from "@mantine/core";
 import { motion } from "framer-motion";
 
+import { uploadImageToAWS } from "../api/Api";
+
 export default function Home() {
   const fileUpload = useRef(null);
   const uploadRef = useRef(null);
@@ -31,23 +31,15 @@ export default function Home() {
 
     setFile(e.target.files[0]);
 
-    let formData = new FormData();
-    formData.append("image", e.target.files[0]);
+    const uploadedImage = await uploadImageToAWS(e.target.files[0]);
 
-    try {
-      const uploadRequest = await axios.post(
-        "http://localhost:5000/upload",
-        formData
-      );
-
-      if (uploadRequest.status === 200) {
-        setSuccess(true);
-      }
-    } catch (e) {
-      setError(e.toString());
-    } finally {
-      setUploading(false);
+    if (uploadedImage.response === true) {
+      setSuccess(true);
+    } else {
+      setError(uploadedImage.error);
     }
+
+    setUploading(false);
   };
 
   return (
@@ -184,7 +176,7 @@ export default function Home() {
 
 const useStyles = createStyles((theme) => ({
   hero: {
-    minHeight: "75vh",
+    minHeight: "80vh",
     padding: "4rem",
   },
   heroTextPrimary: {
