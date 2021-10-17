@@ -10,7 +10,7 @@ import {
   Image,
   Divider,
   Space,
-  Center,
+  Alert,
   Modal,
 } from "@mantine/core";
 
@@ -131,6 +131,10 @@ export default function Thoughts() {
               size="xl"
               variant="bars"
             />
+          ) : error ? (
+            <Alert color="red" title="Something went wrong!">
+              {error}
+            </Alert>
           ) : (
             thoughts.map((thought) => (
               <Col key={thought} span={4}>
