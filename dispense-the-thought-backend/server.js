@@ -1,19 +1,22 @@
 const express = require("express");
-const app = express();
 const multer = require("multer");
-const fs = require("fs");
+const { existsSync, mkdir } = require("fs");
+
+const { uploadFile } = require("./awsS3");
+
+const app = express();
 
 // Check if the dir you want to place pictures in exists
 // IF YOU GET A PERMISSION DENIED
 // With dest or with diskStorage then you also need to add
 // __dirname here
-if (!fs.existsSync("./thoughts")) {
-  fs.mkdir("./thoughts", (err) => {});
+if (!existsSync("./thoughts")) {
+  mkdir("./thoughts", (err) => {});
 }
 
 const storage = multer.diskStorage({
   // YOU NEED TO USE THE __dirname, IT WILL NOT WORK WITHOUT IT
-  destination: (req, file, cb) => cb(null, __dirname + `/thoughts`),
+  // destination: (req, file, cb) => cb(null, __dirname + `/thoughts`),
   // Always give a UNIQUE filename so that the file is not overwritten
   filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
 });
@@ -37,8 +40,6 @@ const upload = multer({
   },
   fileFilter,
 });
-
-require("dotenv").config();
 
 const port = process.env.PORT || 5000;
 
@@ -70,10 +71,20 @@ app.get("/thoughts", (req, res) => {
   res.send("Hello World!");
 });
 
-app.post("/upload", [allow, upload.single("file")], async (req, res) => {
+app.post("/upload", [allow, upload.single("image")], async (req, res) => {
   if (req.file) {
-    res.sendStatus(200);
+    try {
+      // Don't need anything else so i'll just await and send an OK response
+      await uploadFile(req.file);
+
+      res.sendStatus(200);
+    } catch (e) {
+      console.log(e);
+      // If something broke
+      res.sendStatus(500);
+    }
   } else {
+    // If the file is missing
     res.sendStatus(400);
   }
 });
