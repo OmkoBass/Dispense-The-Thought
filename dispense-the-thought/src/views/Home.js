@@ -8,30 +8,31 @@ import {
   Timeline,
   Grid,
   Col,
-  LoadingOverlay,
   Alert,
   Space,
   Center,
+  Text,
 } from "@mantine/core";
 import { motion } from "framer-motion";
 
 import { uploadImageToAWS } from "../api/Api";
+import { Dropzone } from "@mantine/dropzone";
 
 export default function Home() {
-  const fileUpload = useRef(null);
   const uploadRef = useRef(null);
+  const dropzoneRef = useRef(null);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
   const { classes } = useStyles();
 
-  const handleUploadImage = async (e) => {
+  const handleUploadImage = async (file) => {
     setUploading(true);
 
-    setFile(e.target.files[0]);
+    setFile(file);
 
-    const uploadedImage = await uploadImageToAWS(e.target.files[0]);
+    const uploadedImage = await uploadImageToAWS(file);
 
     if (uploadedImage.response === true) {
       setSuccess(true);
@@ -113,10 +114,6 @@ export default function Home() {
       </motion.div>
       <Container className={classes.upload}>
         <Grid>
-          <LoadingOverlay
-            visible={uploading}
-            loaderProps={{ size: "xl", color: "orange", variant: "bars" }}
-          />
           <Col span={12} lg={2} md={3} sm={12}>
             <Center>
               <Timeline active={3} bulletSize={24} lineWidth={3} color="orange">
@@ -134,28 +131,36 @@ export default function Home() {
             <MediaQuery smallerThan="lg">
               <h1 className={classes.heroTextPrimaryPhone}>Choose an image</h1>
             </MediaQuery>
+
+            <Dropzone
+              loading={uploading}
+              onDrop={(files) => handleUploadImage(files[0])}
+              openRef={dropzoneRef}
+              accept={["image/*"]}
+            >
+              {() => (
+                <div>
+                  <Text size="xl" inline>
+                    Drag images here or click to select files
+                  </Text>
+                  <Text size="sm" color="dimmed" inline mt={7}>
+                    Image attachements are only allowed, attachements cannot
+                    exceed 5Mb
+                  </Text>
+                </div>
+              )}
+            </Dropzone>
+            <Space />
             <Button
               ref={uploadRef}
               size="xl"
               variant="gradient"
               gradient={{ from: "orange", to: "red" }}
-              onClick={() => {
-                fileUpload.current.click();
-              }}
+              onClick={() => dropzoneRef.current()}
             >
               Upload
             </Button>
             <Space />
-            <form encType="multipart/form-data" method="POST">
-              <input
-                type="file"
-                multiple={false}
-                ref={fileUpload}
-                onChange={(e) => handleUploadImage(e)}
-                accept="image/*"
-                className={classes.hide}
-              />
-            </form>
 
             {success ? (
               <Alert color="green" title="File uploaded!">
