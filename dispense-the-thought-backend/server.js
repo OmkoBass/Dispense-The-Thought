@@ -1,28 +1,41 @@
 const express = require("express");
 const app = express();
 const multer = require("multer");
+const fs = require("fs");
 
-const fileFilter = (_, file, cb) => {
-  if (file.mimetype === "image/*") {
+// Check if the dir you want to place pictures in exists
+// IF YOU GET A PERMISSION DENIED
+// With dest or with diskStorage then you also need to add
+// __dirname here
+if (!fs.existsSync("./thoughts")) {
+  fs.mkdir("./thoughts", (err) => {});
+}
+
+const storage = multer.diskStorage({
+  // YOU NEED TO USE THE __dirname, IT WILL NOT WORK WITHOUT IT
+  destination: (req, file, cb) => cb(null, __dirname + `/thoughts`),
+  // Always give a UNIQUE filename so that the file is not overwritten
+  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+});
+
+const fileFilter = (req, file, cb) => {
+  // This part is not needed but if you want to check
+  if (file.mimetype.includes("image")) {
     cb(null, true);
   } else {
+    // Returning false will reject it,
+    // your req.file will be undefined
     cb(null, false);
   }
 };
 
-const storage = multer.diskStorage({
-  destination: "./upload",
-  filename: function (req, file, cb) {
-    return cb(null, file.originalname);
-  },
-});
-
 const upload = multer({
   storage,
-  fileFilter,
   limits: {
+    // 5MB is the max size allowed
     fileSize: 1024 * 1024 * 5,
   },
+  fileFilter,
 });
 
 require("dotenv").config();
@@ -57,10 +70,12 @@ app.get("/thoughts", (req, res) => {
   res.send("Hello World!");
 });
 
-app.post("/upload", [allow, upload.single("image")], async (req, res) => {
-  console.log(req.file);
-
-  res.sendStatus(200);
+app.post("/upload", [allow, upload.single("file")], async (req, res) => {
+  if (req.file) {
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(400);
+  }
 });
 
 app.listen(port, () => {
