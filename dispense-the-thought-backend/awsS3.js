@@ -19,7 +19,7 @@ aws.config.update({
 const getAllFiles = async (skipPage) => {
   const s3 = new aws.S3();
 
-  const elements = [];
+  let elements = [];
   let isTruncated = true;
   let marker = null;
 
