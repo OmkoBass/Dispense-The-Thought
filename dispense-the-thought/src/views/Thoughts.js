@@ -34,13 +34,49 @@ export default function Thoughts() {
       if (thoughts.error !== null) {
         setError(thoughts.error);
       } else {
-        setThoughts(thoughts.response);
+        setThoughts(thoughts.response.toString());
       }
 
       setIsLoading(false);
     })();
   }, []);
 
+  const returnAppropriateComponent = () => {
+    if(isLoading) {
+      return <Loader
+              className={classes.centerLoader}
+              color="orange"
+              size="xl"
+              variant="bars"
+            />
+    }
+    else if(error !== null) {
+      return <Alert color="red" title="Something went wrong!">
+              {error}
+            </Alert>
+    } else {
+      return thoughts.map((thought) => (
+        <Col key={thought} span={12} lg={4} md={4} sm={12}>
+          <motion.div
+            onClick={() => {
+              setSelectedImage(thought);
+              setIsModalVisible(true);
+            }}
+            className={classes.image}
+            whileHover="hover"
+            variants={{
+              hover: {
+                scale: 1.1,
+              },
+            }}
+          >
+            <Image src={thought} fit="contain" alt="" radius="md" withPlaceholder />
+          </motion.div>
+        </Col>
+      ))
+    }
+  }
+  
   return (
     <div>
       <motion.div
@@ -124,38 +160,7 @@ export default function Thoughts() {
         <Divider />
         <Space />
         <Grid>
-          {isLoading ? (
-            <Loader
-              className={classes.centerLoader}
-              color="orange"
-              size="xl"
-              variant="bars"
-            />
-          ) : error ? (
-            <Alert color="red" title="Something went wrong!">
-              {error}
-            </Alert>
-          ) : (
-            thoughts.map((thought) => (
-              <Col key={thought} span={4}>
-                <motion.div
-                  onClick={() => {
-                    setSelectedImage(thought);
-                    setIsModalVisible(true);
-                  }}
-                  className={classes.image}
-                  whileHover="hover"
-                  variants={{
-                    hover: {
-                      scale: 1.1,
-                    },
-                  }}
-                >
-                  <Image src={thought} alt="" fit="contain" radius="md" />
-                </motion.div>
-              </Col>
-            ))
-          )}
+          {returnAppropriateComponent()}
         </Grid>
       </Container>
     </div>
