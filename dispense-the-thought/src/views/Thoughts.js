@@ -32,9 +32,9 @@ export default function Thoughts() {
       const thoughts = await getThoughts();
 
       if (thoughts.error !== null) {
-        setError(thoughts.error);
+        setError(thoughts.error.toString());
       } else {
-        setThoughts(thoughts.response.toString());
+        setThoughts(thoughts.response);
       }
 
       setIsLoading(false);
@@ -42,18 +42,21 @@ export default function Thoughts() {
   }, []);
 
   const returnAppropriateComponent = () => {
-    if(isLoading) {
-      return <Loader
-              className={classes.centerLoader}
-              color="orange"
-              size="xl"
-              variant="bars"
-            />
-    }
-    else if(error !== null) {
-      return <Alert color="red" title="Something went wrong!">
-              {error}
-            </Alert>
+    if (isLoading) {
+      return (
+        <Loader
+          className={classes.centerLoader}
+          color="orange"
+          size="xl"
+          variant="bars"
+        />
+      );
+    } else if (error !== null) {
+      return (
+        <Alert color="red" title="Something went wrong!">
+          {error}
+        </Alert>
+      );
     } else {
       return thoughts.map((thought) => (
         <Col key={thought} span={12} lg={4} md={4} sm={12}>
@@ -70,13 +73,19 @@ export default function Thoughts() {
               },
             }}
           >
-            <Image src={thought} fit="contain" alt="" radius="md" withPlaceholder />
+            <Image
+              src={thought}
+              fit="contain"
+              alt=""
+              radius="md"
+              withPlaceholder
+            />
           </motion.div>
         </Col>
-      ))
+      ));
     }
-  }
-  
+  };
+
   return (
     <div>
       <motion.div
@@ -159,9 +168,7 @@ export default function Thoughts() {
         </MediaQuery>
         <Divider />
         <Space />
-        <Grid>
-          {returnAppropriateComponent()}
-        </Grid>
+        <Grid>{returnAppropriateComponent()}</Grid>
       </Container>
     </div>
   );
